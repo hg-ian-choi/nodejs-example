@@ -4,6 +4,7 @@ export default function App() {
   const [ifCamOpen, setIfCamOpen] = useState(false);
   const [camType, setCamType] = useState(true);
   const [openPreview, setOpenPreview] = useState(false);
+  const [showCapture, setShowCapture] = useState(false);
 
   const openCam = async () => {
     let video = document.querySelector('video#preview');
@@ -33,6 +34,14 @@ export default function App() {
     }
   };
 
+  const capture = () => {
+    const video = document.querySelector('video#preview');
+    const canvas = document.querySelector('canvas#capture');
+    const context = canvas.getContext('2d');
+    context.drawImage(video, 0, 0);
+    setShowCapture(true);
+  };
+
   return (
     <div>
       <h1>Hello, World</h1>
@@ -43,14 +52,35 @@ export default function App() {
       <br />
       <video
         id="preview"
-        style={{ display: `${openPreview ? 'block' : 'none'}` }}
+        style={{
+          width: 720,
+          height: 720,
+          display: `${openPreview ? 'block' : 'none'}`,
+        }}
       ></video>
+      <canvas
+        id="capture"
+        width={720}
+        height={720}
+        style={{
+          width: 702,
+          height: 702,
+          display: `${showCapture ? 'block' : 'none'}`,
+        }}
+      ></canvas>
       <button
         onClick={() => {
           openCam();
         }}
       >
         Open Cam
+      </button>
+      <button
+        onClick={() => {
+          capture();
+        }}
+      >
+        Capture
       </button>
     </div>
   );
