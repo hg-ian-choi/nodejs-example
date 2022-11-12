@@ -4,7 +4,14 @@ export default function App() {
   const [ifCamOpen, setIfCamOpen] = useState(false);
   const [camType, setCamType] = useState(true);
   const [openPreview, setOpenPreview] = useState(false);
+  const [captureButtonDisabled, setCaptureButtonDisabled] = useState(true);
   const [showCapture, setShowCapture] = useState(false);
+  const [recordButtonDisabled, setRecordButtonDisabled] = useState(true);
+  const [recordButtonContext, setRecordButtonContext] =
+    useState('Start Recording');
+  const [stream, setStream] = useState(null);
+  const [recorder, setRecorder] = useState(null);
+  const [ifRecording, setIfRecording] = useState(false);
 
   const openCam = async () => {
     let video = document.querySelector('video#preview');
@@ -15,12 +22,15 @@ export default function App() {
           audio: true,
           video: { facingMode: camType ? 'user' : 'enviroment' },
         })
-        .then((stream) => {
+        .then((_stream) => {
           if ('srcObject' in video) {
             setCamType(true);
             setIfCamOpen(true);
             setOpenPreview(true);
-            video.srcObject = stream;
+            setCaptureButtonDisabled(false);
+            setRecordButtonDisabled(false);
+            setStream(_stream);
+            video.srcObject = _stream;
             video.play();
           } else {
             video.src =
@@ -40,6 +50,28 @@ export default function App() {
     const context = canvas.getContext('2d');
     context.drawImage(video, 0, 0);
     setShowCapture(true);
+  };
+
+  const startRecord = () => {
+    let mediaRecorder = new MediaRecorder(stream, {
+      mimeType: 'video/webm;codecs=vp8,opus',
+    });
+    mediaRecorder.ondataavailable = function (_event) {
+      window.bobals = new Blob([_event.data], { type: _event.data.type });
+    };
+    mediaRecorder.onstop = (_event) => {
+      console.log('Stop Recording', _event);
+    };
+    setRecorder(mediaRecorder);
+    mediaRecorder.start();
+    setRecordButtonContext('Stop Recording');
+    setIfRecording(true);
+  };
+
+  const stopRecord = () => {
+    recorder.stop();
+    setRecordButtonContext('Start Recording');
+    setIfRecording(false);
   };
 
   return (
@@ -79,8 +111,17 @@ export default function App() {
         onClick={() => {
           capture();
         }}
+        disabled={captureButtonDisabled}
       >
         Capture
+      </button>
+      <button
+        onClick={() => {
+          ifRecording ? stopRecord() : startRecord();
+        }}
+        disabled={recordButtonDisabled}
+      >
+        {recordButtonContext}
       </button>
     </div>
   );
