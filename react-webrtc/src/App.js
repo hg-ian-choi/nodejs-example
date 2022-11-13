@@ -12,6 +12,9 @@ export default function App() {
   const [stream, setStream] = useState(null);
   const [recorder, setRecorder] = useState(null);
   const [ifRecording, setIfRecording] = useState(false);
+  const [playRecordDisplay, setPlayRecordDisplay] = useState(false);
+  const [blobs, setBlobs] = useState(null);
+  const [playRecordDisabled, setPlayRecordDisabled] = useState(true);
 
   const openCam = async () => {
     let video = document.querySelector('video#preview');
@@ -53,14 +56,13 @@ export default function App() {
   };
 
   const startRecord = () => {
+    setPlayRecordDisabled(true);
     let mediaRecorder = new MediaRecorder(stream, {
       mimeType: 'video/webm;codecs=vp8,opus',
     });
     mediaRecorder.ondataavailable = function (_event) {
-      window.bobals = new Blob([_event.data], { type: _event.data.type });
-    };
-    mediaRecorder.onstop = (_event) => {
-      console.log('Stop Recording', _event);
+      const tempBlobs = new Blob([_event.data], { type: _event.data.type });
+      setBlobs(tempBlobs);
     };
     setRecorder(mediaRecorder);
     mediaRecorder.start();
@@ -72,6 +74,16 @@ export default function App() {
     recorder.stop();
     setRecordButtonContext('Start Recording');
     setIfRecording(false);
+    setPlayRecordDisabled(false);
+  };
+
+  const playRecord = () => {
+    setPlayRecordDisplay(true);
+    const playRecord = document.querySelector('video#playRecord');
+    playRecord.src = null;
+    playRecord.srcObject = null;
+    playRecord.src = window.URL.createObjectURL(blobs);
+    playRecord.play();
   };
 
   return (
@@ -85,21 +97,28 @@ export default function App() {
       <video
         id="preview"
         style={{
-          width: 720,
-          height: 720,
           display: `${openPreview ? 'block' : 'none'}`,
         }}
+        playsInline
+        muted
       ></video>
       <canvas
         id="capture"
-        width={720}
-        height={720}
+        width={640}
+        height={480}
         style={{
-          width: 702,
-          height: 702,
           display: `${showCapture ? 'block' : 'none'}`,
         }}
       ></canvas>
+      <video
+        id="playRecord"
+        style={{
+          display: `${playRecordDisplay ? 'block' : 'none'}`,
+        }}
+        playsInline
+        controls
+      ></video>
+      <br />
       <button
         onClick={() => {
           openCam();
@@ -122,6 +141,14 @@ export default function App() {
         disabled={recordButtonDisabled}
       >
         {recordButtonContext}
+      </button>
+      <button
+        disabled={playRecordDisabled}
+        onClick={() => {
+          playRecord();
+        }}
+      >
+        Play Record
       </button>
     </div>
   );
