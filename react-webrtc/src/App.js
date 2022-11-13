@@ -15,6 +15,7 @@ export default function App() {
   const [playRecordDisplay, setPlayRecordDisplay] = useState(false);
   const [blobs, setBlobs] = useState(null);
   const [playRecordDisabled, setPlayRecordDisabled] = useState(true);
+  const [downloadButtonDisabled, setDownloadButtonDisabled] = useState(true);
 
   const openCam = async () => {
     let video = document.querySelector('video#preview');
@@ -57,6 +58,7 @@ export default function App() {
 
   const startRecord = () => {
     setPlayRecordDisabled(true);
+    setDownloadButtonDisabled(true);
     let mediaRecorder = new MediaRecorder(stream, {
       mimeType: 'video/webm;codecs=vp8,opus',
     });
@@ -75,6 +77,7 @@ export default function App() {
     setRecordButtonContext('Start Recording');
     setIfRecording(false);
     setPlayRecordDisabled(false);
+    setDownloadButtonDisabled(false);
   };
 
   const playRecord = () => {
@@ -84,6 +87,21 @@ export default function App() {
     playRecord.srcObject = null;
     playRecord.src = window.URL.createObjectURL(blobs);
     playRecord.play();
+  };
+
+  const download = () => {
+    const blob = new Blob([blobs], { type: 'video/webm' });
+    const url = window.URL.createObjectURL(blob);
+    const aEle = document.createElement('a');
+    aEle.style.display = 'none';
+    aEle.href = url;
+    aEle.download = `${new Date()}.webm`;
+    document.body.appendChild(aEle);
+    aEle.click();
+    setTimeout(() => {
+      document.body.removeChild(aEle);
+      window.URL.revokeObjectURL(url);
+    }, 100);
   };
 
   return (
@@ -149,6 +167,14 @@ export default function App() {
         }}
       >
         Play Record
+      </button>
+      <button
+        disabled={downloadButtonDisabled}
+        onClick={() => {
+          download();
+        }}
+      >
+        Download
       </button>
     </div>
   );
