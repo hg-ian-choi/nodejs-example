@@ -48,6 +48,23 @@ export default function App() {
     }
   };
 
+  const changeCamType = () => {
+    setCamType(!camType);
+    setRecordButtonDisabled(true);
+    setPlayRecordDisabled(true);
+    setDownloadButtonDisabled(true);
+    setShowCapture(false);
+    setPlayRecordDisplay(false);
+    var video = document.querySelector('viode#preview');
+    if (!video.srcObject) return;
+    let stream = video.srcObject;
+    let tracks = stream.getTracks();
+    tracks.forEach((track) => {
+      track.stop();
+      openCam();
+    });
+  };
+
   const capture = () => {
     const video = document.querySelector('video#preview');
     const canvas = document.querySelector('canvas#capture');
@@ -105,7 +122,7 @@ export default function App() {
   };
 
   return (
-    <div>
+    <div style={{ margin: '0 10px 50px' }}>
       <h1>Hello, World</h1>
       <br />
       <div style={{ display: `${ifCamOpen ? 'block' : 'none'}` }}>
@@ -143,6 +160,14 @@ export default function App() {
         }}
       >
         Open Cam
+      </button>
+      <button
+        disabled={!ifCamOpen}
+        onClick={() => {
+          changeCamType();
+        }}
+      >
+        Change Cam Type
       </button>
       <button
         onClick={() => {
