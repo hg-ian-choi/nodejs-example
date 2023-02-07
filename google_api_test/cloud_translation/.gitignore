@@ -1,0 +1,9 @@
+# node.js
+/node_modules
+
+# IDE - WebStorm
+.idea/*
+
+# env files
+key.json
+.env

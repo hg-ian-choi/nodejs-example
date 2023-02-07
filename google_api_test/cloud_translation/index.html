@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Google Cloud Translation Test</title>
+  </head>
+  <body>
+    <div style="margin: 30px 0 0 0; width: 600px">
+      <div style="display: flex; justify-content: space-between">
+        <div>Words you want to translate:</div>
+        <textarea rows="10" style="width: 50%"></textarea>
+      </div>
+      <div
+        style="
+          margin: 30px 0 0 0;
+          display: flex;
+          justify-content: space-between;
+        "
+      >
+        <div>Language you want to translate:</div>
+        <select>
+          <option value="">Choose a language you want to translate into</option>
+          <option value="ja">Japanese</option>
+          <option value="ko">Korean</option>
+          <option value="en">English</option>
+        </select>
+      </div>
+      <div
+        style="
+          width: 100%;
+          display: flex;
+          justify-content: end;
+          margin: 30px 0 0 0;
+        "
+      >
+        <button type="button" onclick="translate()">Translate</button>
+      </div>
+    </div>
+    <script>
+      function translate() {
+        console.log('run translate');
+      }
+    </script>
+  </body>
+</html>
