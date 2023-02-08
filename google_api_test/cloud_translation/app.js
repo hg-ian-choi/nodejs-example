@@ -13,14 +13,15 @@ const app = express();
 app.use(cors());
 app.use(bodyParser.urlencoded({extend: false}));
 app.use(bodyParser.json());
-const port = 8089;
+
+const port = process.env.PORT || 8088;
 
 app.get('/', (request_, response_) => {
   response_.sendfile(__dirname + '/index.html');
 });
 
 app.post('/detect', async (request_, response_) => {
-  const { words } = request_.body;
+  const {words} = request_.body;
 
   const request = {
     parent: `projects/${process.env.GOOGLE_PROJECT_ID}/locations/global`,

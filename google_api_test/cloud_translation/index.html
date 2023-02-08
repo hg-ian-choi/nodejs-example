@@ -57,21 +57,21 @@
 
   function onDetectButtonClick() {
     const _words = textArea.value;
-    const spanEl = document.querySelector("span");
+    const _spanEl = document.querySelector("span");
     if (!_words) {
-      spanEl.innerHTML = "";
+      _spanEl.innerHTML = "";
       return;
     }
 
-    const xhr = new XMLHttpRequest();
-    xhr.open("POST", 'http://192.168.0.15:8089/detect', true);
-    xhr.setRequestHeader("Content-Type", "application/json");
-    xhr.onreadystatechange = () => {
-      if (xhr.readyState === XMLHttpRequest.DONE && xhr.status === 200) {
-        spanEl.innerHTML = `(${xhr.response})`;
+    const _xhr = new XMLHttpRequest();
+    _xhr.open("POST", `http://localhost:8089/detect`, true);
+    _xhr.setRequestHeader("Content-Type", "application/json");
+    _xhr.onreadystatechange = () => {
+      if (_xhr.readyState === XMLHttpRequest.DONE && _xhr.status === 200) {
+        _spanEl.innerHTML = `(${_xhr.response})`;
       }
     }
-    xhr.send(JSON.stringify({words: _words}));
+    _xhr.send(JSON.stringify({words: _words}));
   }
 
   function onTranslateButtonClick() {
@@ -88,15 +88,15 @@
       return;
     }
 
-    const xhr = new XMLHttpRequest();
-    xhr.open("POST", 'http://192.168.0.15:8089/translate', true);
-    xhr.setRequestHeader("Content-Type", "application/json");
-    xhr.onreadystatechange = () => {
-      if (xhr.readyState === XMLHttpRequest.DONE && xhr.status === 200) {
-        textArea.value = xhr.response;
+    const _xhr = new XMLHttpRequest();
+    _xhr.open("POST", `http://localhost:8089/translate`, true);
+    _xhr.setRequestHeader("Content-Type", "application/json");
+    _xhr.onreadystatechange = () => {
+      if (_xhr.readyState === XMLHttpRequest.DONE && _xhr.status === 200) {
+        textArea.value = _xhr.response;
       }
     }
-    xhr.send(JSON.stringify({words: words, lang: lang}));
+    _xhr.send(JSON.stringify({words: words, lang: lang}));
   }
 </script>
 </body>
