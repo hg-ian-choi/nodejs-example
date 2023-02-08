@@ -1,47 +1,71 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<head>
+    <meta charset="UTF-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>Google Cloud Translation Test</title>
-  </head>
-  <body>
-    <div style="margin: 30px 0 0 0; width: 600px">
-      <div style="display: flex; justify-content: space-between">
+</head>
+<body>
+<div style="margin: 30px 0 0 0; width: 600px">
+    <div style="display: flex; justify-content: space-between">
         <div>Words you want to translate:</div>
         <textarea rows="10" style="width: 50%"></textarea>
-      </div>
-      <div
-        style="
+    </div>
+    <div
+            style="
           margin: 30px 0 0 0;
           display: flex;
           justify-content: space-between;
         "
-      >
+    >
         <div>Language you want to translate:</div>
         <select>
-          <option value="">Choose a language you want to translate into</option>
-          <option value="ja">Japanese</option>
-          <option value="ko">Korean</option>
-          <option value="en">English</option>
+            <option value="">Choose a language you want to translate into</option>
+            <option value="ja">Japanese</option>
+            <option value="ko">Korean</option>
+            <option value="en">English</option>
         </select>
-      </div>
-      <div
-        style="
+    </div>
+    <div
+            style="
           width: 100%;
           display: flex;
           justify-content: end;
           margin: 30px 0 0 0;
         "
-      >
-        <button type="button" onclick="translate()">Translate</button>
-      </div>
+    >
+        <button type="button" onclick="onTranslateButtonClick()">Translate</button>
     </div>
-    <script>
-      function translate() {
-        console.log('run translate');
+</div>
+<script>
+  function onTranslateButtonClick() {
+    const textArea = document.querySelector("textarea");
+    const words = textArea.value;
+    if (!words) {
+      alert('Need words for translate');
+      return;
+    }
+
+    const lang = document.querySelector('select').value;
+    if (!lang) {
+      alert('Please select a language');
+      return;
+    }
+
+    const xhr = new XMLHttpRequest();
+    xhr.open("POST", 'http://localhost:8089/translate', true);
+    xhr.setRequestHeader("Content-Type", "application/json");
+    xhr.onreadystatechange = () => {
+      console.log('xhr.readyState', xhr.readyState);
+      console.log('xhr.status', xhr.status);
+      console.log('XMLHttpRequest.DONE', XMLHttpRequest.DONE);
+      if (xhr.readyState === XMLHttpRequest.DONE && xhr.status === 200) {
+        textArea.value = xhr.response;
       }
-    </script>
-  </body>
+    }
+    xhr.send(JSON.stringify({words: words, lang: lang}));
+  }
+</script>
+</body>
 </html>
