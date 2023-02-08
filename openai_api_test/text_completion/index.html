@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Text Completion Test</title>
+</head>
+<body>
+<div style="margin: 30px 0 0 0; width: 600px">
+    <div style="display: flex; justify-content: space-between">
+        <div>
+            Words you want to ask:
+        </div>
+        <textarea rows="10" style="width: 50%"></textarea>
+    </div>
+
+    <div style="
+          width: 100%;
+          display: flex;
+          justify-content: end;
+          margin: 30px 0 0 0;
+        "
+    >
+        <button type="button" onclick="onAskButtonClick()">Ask</button>
+    </div>
+    <div style="margin: 30px 0 0 0" id="qna">
+<!--        <div style="display: flex; align-items: start; padding-top: 10px; border-top: 1px solid black">-->
+<!--            <h1 style="margin: 0 30px 0 0">Q:</h1>-->
+<!--            <div style="word-break: break-all">-->
+<!--                Hello, World!-->
+<!--            </div>-->
+<!--        </div>-->
+<!--        <div style="display: flex; margin-top: 10px">-->
+<!--            <h1 style="margin: 0 30px 0 0">A:</h1>-->
+<!--            <div style="word-break: break-all">-->
+<!--                Hey, World!-->
+<!--            </div>-->
+<!--        </div>-->
+    </div>
+</div>
+<script>
+  let histories;
+
+  function onAskButtonClick() {
+    const _words = document.querySelector("textarea").value;
+    appendAsk(_words);
+    const _xhr = new XMLHttpRequest();
+    _xhr.open('POST', `http://localhost:8090/completion`);
+    _xhr.setRequestHeader("Content-Type", "application/json");
+    _xhr.onreadystatechange = () => {
+      if (_xhr.readyState === XMLHttpRequest.DONE && _xhr.status === 200) {
+        const _qnaEl = document.getElementById('qna');
+        const _answer = document.createElement("div");
+        _answer.style.display = 'flex';
+        _answer.style.marginTop = '10px';
+        _answer.innerHTML = `<h1 style="margin: 0 30px 0 0">A:</h1><div style="word-break: break-all">${_xhr.response}</div>`;
+        _qnaEl.appendChild(_answer);
+      }
+    }
+    _xhr.send(JSON.stringify({words: _words}));
+  }
+
+  function appendAsk(words_) {
+    if (words_) {
+      console.log(words_);
+      const _qnaEl = document.getElementById('qna');
+      const _question = document.createElement("div");
+      _question.style.display = 'flex';
+      _question.style.paddingTop = '10px';
+      _question.style.borderTop = '1px solid black';
+      _question.innerHTML = `<h1 style="margin: 0 30px 0 0">Q:</h1><div style="word-break: break-all">${words_}</div>`;
+      _qnaEl.appendChild(_question);
+    }
+  }
+</script>
+</body>
+</html>
