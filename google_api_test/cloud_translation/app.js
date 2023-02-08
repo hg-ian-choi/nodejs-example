@@ -19,8 +19,31 @@ app.get('/', (request_, response_) => {
   response_.sendfile(__dirname + '/index.html');
 });
 
+app.post('/detect', async (request_, response_) => {
+  const { words } = request_.body;
+
+  const request = {
+    parent: `projects/${process.env.GOOGLE_PROJECT_ID}/locations/global`,
+    content: words,
+  };
+
+  // Run request
+  const [response] = await translationClient.detectLanguage(request);
+
+  console.log('Detected Languages:');
+  for (const language of response.languages) {
+    console.log(`Language Code: ${language.languageCode}`);
+    console.log(`Confidence: ${language.confidence}`);
+  }
+  if (!response.languages[0].languageCode) {
+    throw new Error('Failed to detect');
+  }
+  response_.status(200).send(response.languages[0].languageCode);
+});
+
 app.post('/translate', async (request_, response_) => {
   const {words, lang} = request_.body;
+
   const request = {
     parent: `projects/${process.env.GOOGLE_PROJECT_ID}/locations/global`,
     contents: [words],

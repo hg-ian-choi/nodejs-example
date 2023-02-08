@@ -4,17 +4,13 @@
     <meta charset="UTF-8"/>
     <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>Google Cloud Translation Test</title>
+    <title>Cloud Translation Test</title>
 </head>
 <body>
 <div style="margin: 30px 0 0 0; width: 600px">
-    <div style="display: flex; justify-content: space-between">
-        <div>Words you want to translate:</div>
-        <textarea rows="10" style="width: 50%"></textarea>
-    </div>
     <div
             style="
-          margin: 30px 0 0 0;
+          margin: 30px 0;
           display: flex;
           justify-content: space-between;
         "
@@ -27,6 +23,13 @@
             <option value="en">English</option>
         </select>
     </div>
+    <div style="display: flex; justify-content: space-between">
+        <div>
+            Words you want to translate: <span style="color: red"></span>
+        </div>
+        <textarea rows="10" style="width: 50%"></textarea>
+    </div>
+
     <div
             style="
           width: 100%;
@@ -35,10 +38,42 @@
           margin: 30px 0 0 0;
         "
     >
+        <button type="button" onclick="onDetectButtonClick()">Detect</button>
         <button type="button" onclick="onTranslateButtonClick()">Translate</button>
     </div>
 </div>
 <script>
+  function onTextAreaKeyUp(event_) {
+    // if (event_.code === "Enter") {
+    //   onTranslateButtonClick();
+    // }
+  }
+
+  const textArea = document.querySelector("textarea");
+
+  textArea.addEventListener('change', function (event_) {
+    onDetectButtonClick();
+  });
+
+  function onDetectButtonClick() {
+    const _words = textArea.value;
+    const spanEl = document.querySelector("span");
+    if (!_words) {
+      spanEl.innerHTML = "";
+      return;
+    }
+
+    const xhr = new XMLHttpRequest();
+    xhr.open("POST", 'http://192.168.0.15:8089/detect', true);
+    xhr.setRequestHeader("Content-Type", "application/json");
+    xhr.onreadystatechange = () => {
+      if (xhr.readyState === XMLHttpRequest.DONE && xhr.status === 200) {
+        spanEl.innerHTML = `(${xhr.response})`;
+      }
+    }
+    xhr.send(JSON.stringify({words: _words}));
+  }
+
   function onTranslateButtonClick() {
     const textArea = document.querySelector("textarea");
     const words = textArea.value;
@@ -54,12 +89,9 @@
     }
 
     const xhr = new XMLHttpRequest();
-    xhr.open("POST", 'http://localhost:8089/translate', true);
+    xhr.open("POST", 'http://192.168.0.15:8089/translate', true);
     xhr.setRequestHeader("Content-Type", "application/json");
     xhr.onreadystatechange = () => {
-      console.log('xhr.readyState', xhr.readyState);
-      console.log('xhr.status', xhr.status);
-      console.log('XMLHttpRequest.DONE', XMLHttpRequest.DONE);
       if (xhr.readyState === XMLHttpRequest.DONE && xhr.status === 200) {
         textArea.value = xhr.response;
       }
