@@ -12,7 +12,7 @@
         <div>
             Words you want to ask:
         </div>
-        <textarea rows="10" style="width: 50%"></textarea>
+        <textarea rows="10" style="width: 50%" onkeyup="onTextAreaKeyUp(event)"></textarea>
     </div>
 
     <div style="
@@ -25,53 +25,67 @@
         <button type="button" onclick="onAskButtonClick()">Ask</button>
     </div>
     <div style="margin: 30px 0 0 0" id="qna">
-<!--        <div style="display: flex; align-items: start; padding-top: 10px; border-top: 1px solid black">-->
-<!--            <h1 style="margin: 0 30px 0 0">Q:</h1>-->
-<!--            <div style="word-break: break-all">-->
-<!--                Hello, World!-->
-<!--            </div>-->
-<!--        </div>-->
-<!--        <div style="display: flex; margin-top: 10px">-->
-<!--            <h1 style="margin: 0 30px 0 0">A:</h1>-->
-<!--            <div style="word-break: break-all">-->
-<!--                Hey, World!-->
-<!--            </div>-->
-<!--        </div>-->
+        <!--        <div style="display: flex; align-items: start; padding-top: 10px; border-top: 1px solid black">-->
+        <!--            <h1 style="margin: 0 30px 0 0">Q:</h1>-->
+        <!--            <div style="word-break: break-all">-->
+        <!--                Hello, World!-->
+        <!--            </div>-->
+        <!--        </div>-->
+        <!--        <div style="display: flex; margin-top: 10px">-->
+        <!--            <h1 style="margin: 0 30px 0 0">A:</h1>-->
+        <!--            <div style="word-break: break-all">-->
+        <!--                Hey, World!-->
+        <!--            </div>-->
+        <!--        </div>-->
     </div>
 </div>
 <script>
   let histories;
 
+  function onTextAreaKeyUp(event_) {
+    if (event_.keyCode === 13) {
+      onAskButtonClick();
+    }
+  }
+
   function onAskButtonClick() {
-    const _words = document.querySelector("textarea").value;
+    const _textareaEl = document.querySelector("textarea");
+    const _words = _textareaEl.value;
+    if (!_words.trim()) {
+      return;
+    }
     appendAsk(_words);
+    const _btnEl = document.querySelector('button');
+    _btnEl.disabled = true;
+    _textareaEl.disabled = true;
+    const _qnaEl = document.getElementById('qna');
+    const _answer = document.createElement("div");
+    _answer.style.display = 'flex';
+    _answer.style.margin = '10px 0';
+    _answer.innerHTML = `<h1 style="margin: 0 30px 0 0">A:</h1><div style="word-break: break-word; white-space: pre-wrap">......</div>`;
+    _qnaEl.appendChild(_answer);
     const _xhr = new XMLHttpRequest();
     _xhr.open('POST', `http://localhost:8090/completion`);
     _xhr.setRequestHeader("Content-Type", "application/json");
     _xhr.onreadystatechange = () => {
       if (_xhr.readyState === XMLHttpRequest.DONE && _xhr.status === 200) {
-        const _qnaEl = document.getElementById('qna');
-        const _answer = document.createElement("div");
-        _answer.style.display = 'flex';
-        _answer.style.marginTop = '10px';
-        _answer.innerHTML = `<h1 style="margin: 0 30px 0 0">A:</h1><div style="word-break: break-all">${_xhr.response}</div>`;
-        _qnaEl.appendChild(_answer);
+        _answer.innerHTML = `<h1 style="margin: 0 30px 0 0">A:</h1><div style="word-break: break-word; white-space: pre-wrap">${_xhr.response}</div>`;
+        _btnEl.disabled = false;
+        _textareaEl.disabled = false;
       }
     }
     _xhr.send(JSON.stringify({words: _words}));
   }
 
   function appendAsk(words_) {
-    if (words_) {
-      console.log(words_);
-      const _qnaEl = document.getElementById('qna');
-      const _question = document.createElement("div");
-      _question.style.display = 'flex';
-      _question.style.paddingTop = '10px';
-      _question.style.borderTop = '1px solid black';
-      _question.innerHTML = `<h1 style="margin: 0 30px 0 0">Q:</h1><div style="word-break: break-all">${words_}</div>`;
-      _qnaEl.appendChild(_question);
-    }
+    console.log(words_);
+    const _qnaEl = document.getElementById('qna');
+    const _question = document.createElement("div");
+    _question.style.display = 'flex';
+    _question.style.paddingTop = '10px';
+    _question.style.borderTop = '1px solid black';
+    _question.innerHTML = `<h1 style="margin: 0 30px 0 0">Q:</h1><div style="word-break: break-word">${words_}</div>`;
+    _qnaEl.appendChild(_question);
   }
 </script>
 </body>
