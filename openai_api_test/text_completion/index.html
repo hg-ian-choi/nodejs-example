@@ -12,7 +12,13 @@
         <div>
             Words you want to ask:
         </div>
-        <textarea rows="10" style="width: 50%" onkeyup="onTextAreaKeyUp(event)"></textarea>
+        <textarea
+                rows="10"
+                style="width: 50%"
+                autofocus
+                onkeydown="onTextAreaKeyDown(event)"
+                onkeyup="onTextAreaKeyUp(event)"
+        ></textarea>
     </div>
 
     <div style="
@@ -22,35 +28,31 @@
           margin: 30px 0 0 0;
         "
     >
-        <button type="button" onclick="onAskButtonClick()">Ask</button>
+        <span style="margin-right: 10px">(shift + enter) or</span><button type="button" onclick="onAskButtonClick()">Ask</button>
     </div>
     <div style="margin: 30px 0 0 0" id="qna">
-        <!--        <div style="display: flex; align-items: start; padding-top: 10px; border-top: 1px solid black">-->
-        <!--            <h1 style="margin: 0 30px 0 0">Q:</h1>-->
-        <!--            <div style="word-break: break-all">-->
-        <!--                Hello, World!-->
-        <!--            </div>-->
-        <!--        </div>-->
-        <!--        <div style="display: flex; margin-top: 10px">-->
-        <!--            <h1 style="margin: 0 30px 0 0">A:</h1>-->
-        <!--            <div style="word-break: break-all">-->
-        <!--                Hey, World!-->
-        <!--            </div>-->
-        <!--        </div>-->
     </div>
 </div>
 <script>
-  let histories;
+  const histories = [];
+  let prevKeyCode;
+
+  function onTextAreaKeyDown(event_) {
+    if (event_.keyCode !== 13) {
+      prevKeyCode = event_.keyCode;
+    }
+  }
 
   function onTextAreaKeyUp(event_) {
-    if (event_.keyCode === 13) {
+    if (prevKeyCode === 16 && event_.keyCode === 13) {
+      event_.preventDefault();
       onAskButtonClick();
     }
   }
 
   function onAskButtonClick() {
     const _textareaEl = document.querySelector("textarea");
-    const _words = _textareaEl.value;
+    const _words = '\n\n' + _textareaEl.value;
     if (!_words.trim()) {
       return;
     }
@@ -72,9 +74,12 @@
         _answer.innerHTML = `<h1 style="margin: 0 30px 0 0">A:</h1><div style="word-break: break-word; white-space: pre-wrap">${_xhr.response}</div>`;
         _btnEl.disabled = false;
         _textareaEl.disabled = false;
+        _textareaEl.focus();
+        _textareaEl.value = '';
+        histories.push({question: _words, answer: _xhr.response});
       }
     }
-    _xhr.send(JSON.stringify({words: _words}));
+    _xhr.send(JSON.stringify({words: _words, histories: histories}));
   }
 
   function appendAsk(words_) {
@@ -84,7 +89,7 @@
     _question.style.display = 'flex';
     _question.style.paddingTop = '10px';
     _question.style.borderTop = '1px solid black';
-    _question.innerHTML = `<h1 style="margin: 0 30px 0 0">Q:</h1><div style="word-break: break-word">${words_}</div>`;
+    _question.innerHTML = `<h1 style="margin: 0 30px 0 0">Q:</h1><div style="word-break: break-word">\n${words_}</div>`;
     _qnaEl.appendChild(_question);
   }
 </script>
